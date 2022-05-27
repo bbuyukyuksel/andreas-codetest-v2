@@ -24,3 +24,5 @@ This project's aim to parse `customer informations` which is been CSV file conte
 
 - PostRequest(customer []*Customer)
   
+## Results
+![result image](src/result.png)
