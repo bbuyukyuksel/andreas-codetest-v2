@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 type CSV struct {
@@ -72,7 +74,15 @@ func (ptr *CSV) Filter() {
 
 	for i, c := range ptr.customers {
 		if len(c.ScheduleList) == 0 || c.Paid == true {
-			fmt.Println("Filtered index: ", i)
+
+			var reason string
+			if len(c.ScheduleList) == 0 {
+				reason = color.GreenString("empty schedule")
+			} else {
+				reason = color.RedString("paid")
+			}
+
+			color.Yellow("[ %2d ] filtered, reason <%s>\n", i, reason)
 			continue
 		}
 		customer = append(customer, c)
@@ -81,14 +91,24 @@ func (ptr *CSV) Filter() {
 	ptr.customers = customer
 }
 
-func (ptr *CSV) GetLastNSecs(last_second int, start_time time.Time) []*Customer {
+func (o CSV) GetAllScheduleList() []int {
+	var schedules []int
+	for _, v := range o.customers {
+		schedules = append(schedules, v.ScheduleList...)
+	}
+	sort.Slice(schedules, func(i, j int) bool {
+		return schedules[i] < schedules[j]
+	})
+	return schedules
+}
+
+func (ptr *CSV) GetLastNSecs(last_n_time time.Duration, start_time time.Time) []*Customer {
 	var customer []*Customer
 
 	for i, c := range ptr.customers {
 		if len(c.ScheduleList) == 0 {
-			fmt.Println("Filtered index: ", i)
 			continue
-		} else if TimeWithOffset(c.ScheduleList[0], start_time).Sub(time.Now()) < (time.Duration(last_second) * time.Millisecond) {
+		} else if TimeWithOffset(c.ScheduleList[0], start_time).Sub(time.Now()) < last_n_time {
 			customer = append(customer, &ptr.customers[i])
 
 		}
