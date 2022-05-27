@@ -67,12 +67,14 @@ func createCustomers(data [][]string) []Customer {
 }
 
 func (ptr *CSV) Sort() {
+	// Sort CSV.customers by schedule list's first value
 	sort.Slice(ptr.customers, func(i, j int) bool {
 		return ptr.customers[i].ScheduleList[0] < ptr.customers[j].ScheduleList[0]
 	})
 }
 
 func (ptr *CSV) Filter() {
+	// omit customer which hasn't any schedule time offset or has paid
 	var customer []Customer
 
 	for i, c := range ptr.customers {
@@ -95,6 +97,7 @@ func (ptr *CSV) Filter() {
 }
 
 func (o CSV) GetAllScheduleList() []int {
+	// get all customer's schedule list as 1d array and sort it
 	var schedules []int
 	for _, v := range o.customers {
 		schedules = append(schedules, v.ScheduleList...)
@@ -106,6 +109,7 @@ func (o CSV) GetAllScheduleList() []int {
 }
 
 func (ptr *CSV) GetByLastNTime(last_n_time time.Duration, start_time time.Time) []*Customer {
+	// filter if task-performing duration is approaching
 	var customer []*Customer
 
 	for i, c := range ptr.customers {
@@ -120,6 +124,7 @@ func (ptr *CSV) GetByLastNTime(last_n_time time.Duration, start_time time.Time) 
 }
 
 func (o CSV) Print() {
+	// print CSV.customers
 	fmt.Println("#####################CSV PRINT#####################")
 	for i, c := range o.customers {
 		fmt.Printf("- Data[ %-2d ]\n", i)
@@ -133,6 +138,7 @@ func (o CSV) Print() {
 }
 
 func PrintCustomerArray(o []*Customer) {
+	// print []*Customer
 	if len(o) > 0 {
 		fmt.Println("< CSV Print Function >")
 		for i, c := range o {

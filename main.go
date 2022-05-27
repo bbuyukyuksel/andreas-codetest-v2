@@ -11,6 +11,7 @@ import (
 )
 
 func Handler(csv *CSV) {
+	// process customers
 	var schedules []int
 	var adaptiveSleepTime time.Duration
 
@@ -45,6 +46,7 @@ func Handler(csv *CSV) {
 }
 
 func PostRequest(customer []*Customer) {
+	// start to post requests if task-performing duration is approaching
 	for i := 0; i < len(customer); i++ {
 
 		customer[i].ScheduleList = customer[i].ScheduleList[1:]
