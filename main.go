@@ -23,7 +23,7 @@ func Handler(csv *CSV) {
 
 		csv.Filter()
 		csv.Sort()
-		last_n := csv.GetLastNSecs(last_n_time, tick_time)
+		last_n := csv.GetByLastNTime(last_n_time, tick_time)
 		if len(last_n) > 0 {
 			fmt.Println("\n\n..............................................")
 			fmt.Printf("STEP [ %2d ] elapsed time: %v\n", step, time.Now().Sub(tick_time))
@@ -76,8 +76,8 @@ func PostRequest(customer []*Customer) {
 
 func main() {
 	var csv CSV
-	//csv.Parse("customers.csv")
-	csv.Parse("concurrent_customer.csv")
+	csv.Parse("customers.csv")
+	// csv.Parse("concurrent_customer.csv")
 	csv.Print()
 
 	Handler(&csv)

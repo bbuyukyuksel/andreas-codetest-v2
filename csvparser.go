@@ -102,7 +102,7 @@ func (o CSV) GetAllScheduleList() []int {
 	return schedules
 }
 
-func (ptr *CSV) GetLastNSecs(last_n_time time.Duration, start_time time.Time) []*Customer {
+func (ptr *CSV) GetByLastNTime(last_n_time time.Duration, start_time time.Time) []*Customer {
 	var customer []*Customer
 
 	for i, c := range ptr.customers {
