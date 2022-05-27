@@ -8,15 +8,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
-
-type Customer struct {
-	Email        string `json:"email"`
-	Text         string `json:"text"`
-	Schedule     string `json:"schedule"`
-	Paid         bool   `json:"paid"`
-	ScheduleList []int  `json:"-"`
-}
 
 type CSV struct {
 	customers []Customer
@@ -53,12 +46,8 @@ func createCustomers(data [][]string) []Customer {
 					temp.Schedule = field
 
 					// Convert schedule string to []int
-					for i, value := range strings.Split(field, "-") {
+					for _, value := range strings.Split(field, "-") {
 						val, err := strconv.Atoi(strings.TrimRight(value, "s"))
-						// calculate delay from previous schedule offset-time
-						if i != 0 {
-							val -= temp.ScheduleList[i-1]
-						}
 						if err != nil {
 							log.Fatal(err)
 						}
@@ -82,7 +71,7 @@ func (ptr *CSV) Filter() {
 	var customer []Customer
 
 	for i, c := range ptr.customers {
-		if len(c.ScheduleList) == 0 {
+		if len(c.ScheduleList) == 0 || c.Paid == true {
 			fmt.Println("Filtered index: ", i)
 			continue
 		}
@@ -92,7 +81,23 @@ func (ptr *CSV) Filter() {
 	ptr.customers = customer
 }
 
+func (ptr *CSV) GetLastNSecs(last_second int, start_time time.Time) []*Customer {
+	var customer []*Customer
+
+	for i, c := range ptr.customers {
+		if len(c.ScheduleList) == 0 {
+			fmt.Println("Filtered index: ", i)
+			continue
+		} else if TimeWithOffset(c.ScheduleList[0], start_time).Sub(time.Now()) < (time.Duration(last_second) * time.Millisecond) {
+			customer = append(customer, &ptr.customers[i])
+
+		}
+	}
+	return customer
+}
+
 func (o CSV) Print() {
+	fmt.Println("#####################CSV PRINT#####################")
 	for i, c := range o.customers {
 		fmt.Printf("- Data[ %-2d ]\n", i)
 		fmt.Printf("\t\tEmail        : %s\n", c.Email)
@@ -100,5 +105,21 @@ func (o CSV) Print() {
 		fmt.Printf("\t\tSchedule     : %s\n", c.Schedule)
 		fmt.Printf("\t\tScheduleList : %v\n", c.ScheduleList)
 		fmt.Printf("\t\tPaid         : %v\n", c.Paid)
+	}
+	fmt.Println("#####################CSV PRINT#####################")
+}
+
+func PrintCustomerArray(o []*Customer) {
+	if len(o) > 0 {
+		fmt.Println("< CSV Print Function >")
+		for i, c := range o {
+			fmt.Printf("- Data[ %-2d ]\n", i)
+			fmt.Printf("\t\tEmail        : %s\n", c.Email)
+			fmt.Printf("\t\tText         : %s\n", c.Text)
+			fmt.Printf("\t\tSchedule     : %s\n", c.Schedule)
+			fmt.Printf("\t\tScheduleList : %v\n", c.ScheduleList)
+			fmt.Printf("\t\tPaid         : %v\n", c.Paid)
+		}
+		fmt.Println("</ CSV Print Function >")
 	}
 }
