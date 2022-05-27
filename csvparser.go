@@ -35,30 +35,33 @@ func (ptr *CSV) Parse(filename string) {
 }
 
 func createCustomers(data [][]string) []Customer {
-	var customers []Customer
-	for i, line := range data {
-		if i > 0 { // omit header line
-			var temp Customer
-			for j, field := range line {
-				if j == 0 {
-					temp.Email = field
-				} else if j == 1 {
-					temp.Text = field
-				} else if j == 2 {
-					temp.Schedule = field
+	// create customers array known dimensions
+	var customers []Customer = make([]Customer, len(data)-1)
 
-					// Convert schedule string to []int
-					for _, value := range strings.Split(field, "-") {
-						val, err := strconv.Atoi(strings.TrimRight(value, "s"))
-						if err != nil {
-							log.Fatal(err)
-						}
-						temp.ScheduleList = append(temp.ScheduleList, val)
+	for i, line := range data {
+		if i == 0 { // omit header line
+			continue
+		}
+		var temp Customer
+		for j, field := range line {
+			if j == 0 {
+				temp.Email = field
+			} else if j == 1 {
+				temp.Text = field
+			} else if j == 2 {
+				temp.Schedule = field
+
+				// Convert schedule string to []int
+				for _, value := range strings.Split(field, "-") {
+					val, err := strconv.Atoi(strings.TrimRight(value, "s"))
+					if err != nil {
+						log.Fatal(err)
 					}
+					temp.ScheduleList = append(temp.ScheduleList, val)
 				}
 			}
-			customers = append(customers, temp)
 		}
+		customers[i-1] = temp
 	}
 	return customers
 }
